@@ -1,0 +1,48 @@
+// Define pins for the rotary encoder
+const int CLK_PIN = D2; // CLK pin
+const int DT_PIN = D3; // DT pin
+const int SW_PIN = D4; // SW pin
+
+// Define variables
+volatile int count = 0; // count variable
+volatile int lastCLKstate = LOW; // last state of CLK pin
+
+void setup() {
+  // Set pin modes
+  pinMode(CLK_PIN, INPUT);
+  pinMode(DT_PIN, INPUT);
+  pinMode(SW_PIN, INPUT_PULLUP);
+
+  // Enable interrupts for CLK pin
+  attachInterrupt(digitalPinToInterrupt(CLK_PIN), updateCount, CHANGE);
+  
+  // Initialize serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Print count value to serial monitor
+  Serial.print("Count: ");
+  Serial.println(count);
+
+  // Wait for a short delay
+  delay(100);
+}
+
+void updateCount() {
+  // Read the current state of the CLK pin
+  int currentCLKstate = digitalRead(CLK_PIN);
+
+  // Check if the DT pin has changed state
+  if (digitalRead(DT_PIN) != lastCLKstate) {
+    // Increment or decrement count depending on the direction of rotation
+    if (currentCLKstate == HIGH) {
+      count++;
+    } else {
+      count--;
+    }
+  }
+
+  // Update the last state of the CLK pin
+  lastCLKstate = currentCLKstate;
+}
